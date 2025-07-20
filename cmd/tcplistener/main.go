@@ -1,6 +1,7 @@
 package main
 
 import (
+	"boot.shubeagen.tv/internal/request"
 	"bytes"
 	"fmt"
 	"io"
@@ -52,12 +53,18 @@ func main() {
 	for {
 		conn, err := tcpConnect.Accept()
 		if err != nil {
-			fmt.Errorf("not accepted connection")
+			fmt.Printf("erro while reading")
 		}
-		channel := getLinesChannel(conn)
-		for line := range channel {
-			fmt.Printf("read: %s\n", string(line))
+
+		rl, err := request.RequestFromReader(conn)
+
+		if err != nil {
+			fmt.Printf("erro while running RequestFromReader")
 		}
+		fmt.Printf("Request line: \n")
+		fmt.Printf("- Method: %s \n", rl.RequestLine.Method)
+		fmt.Printf("- Target: %s \n", rl.RequestLine.RequestTarget)
+		fmt.Printf("- Version: %s \n", rl.RequestLine.HttpVersion)
 	}
 
 }
