@@ -1,0 +1,33 @@
+connection is setup
+running parseRequestLine: GET / HTTP/1.1
+Host: localhost:42069
+User-Agent: curl/8.5.0
+Accept: */*
+
+
+Request line:
+Method: GET
+Target: /
+Version: 1.1
+connection is setup
+running parseRequestLine: GET /prime/agen HTTP/1.1
+Host: localhost:42069
+User-Agent: curl/8.5.0
+Accept: */*
+
+
+Request line:
+Method: GET
+Target: /prime/agen
+Version: 1.1
+connection is setup
+running parseRequestLine: GET / HTTP/1.1
+Host: localhost:42069
+User-Agent: curl/8.5.0
+Accept: */*
+
+
+Request line:
+Method: GET
+Target: /
+Version: 1.1
