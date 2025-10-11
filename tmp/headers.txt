@@ -1,0 +1,19 @@
+connection is setup
+running parseRequestLine: GET /use-neovim-btw HTTP/1.1
+Host: localhost:42069
+User-Agent: curl/8.5.0
+Accept: */*
+
+
+fieldLine:Host: localhost:42069
+fieldLine:User-Agent: curl/8.5.0
+fieldLine:Accept: */*
+Request line:
+Method: GET
+Target: /use-neovim-btw
+Version: 1.1
+
+Headers:
+host : localhost:42069
+user-agent : curl/8.5.0
+accept : */*

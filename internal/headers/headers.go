@@ -15,9 +15,11 @@ type Headers struct {
 	Headers map[string]string
 }
 
-func (h *Headers) Get(key string) string {
-	lowKey := strings.ToLower(key)
-	return h.Headers[lowKey]
+func (h *Headers) Get(key string) (string, bool) {
+	toLow := strings.ToLower(key)
+	val, ok := h.Headers[toLow]
+	fmt.Printf("header get access:%s,output val :%s\n", toLow, val)
+	return val, ok
 }
 
 func (h *Headers) Set(key string, val string) {
@@ -60,7 +62,6 @@ func isValidFieldName(name string) bool {
 }
 
 func parsingFieldLine(fieldLine []byte) (string, string, error) {
-	fmt.Printf("fieldLine:%s\n", fieldLine)
 	fieldLinePart := bytes.SplitN(fieldLine, []byte(":"), 2)
 	if len(fieldLinePart) != 2 {
 		return "", "", MAILFORMATE_IN_FIELD_LINE

@@ -1,15 +1,19 @@
 package request
 
 import (
+	"TCPtoHTTP/internal/headers"
 	"bytes"
 	"fmt"
 	"io"
+	"strconv"
 )
 
 type parsingStatus string
 
 const (
 	initialState parsingStatus = "initial"
+	headerState  parsingStatus = "header"
+	bodyState    parsingStatus = "body"
 	doneState    parsingStatus = "done"
 	errorState   parsingStatus = "error"
 )
@@ -22,12 +26,27 @@ type RequestLine struct {
 
 type Request struct {
 	RequestLine RequestLine
+	Headers     *headers.Headers
+	Body        string
 	Status      parsingStatus
 }
 
 var NOT_FOUND_NEW_LINE_INDECTAR = fmt.Errorf("request line is not complete")
 
 var NEW_LINE_INDECTAR = "\r\n"
+
+func getInt(headers *headers.Headers, key string, defaults int) int {
+	valuestr, exists := headers.Get(key)
+	if !exists {
+		return defaults
+	}
+
+	leng, err := strconv.Atoi(valuestr)
+	if err != nil {
+		return defaults
+	}
+	return leng
+}
 
 func isCapital(str string) bool {
 	for _, char := range str {
@@ -39,7 +58,6 @@ func isCapital(str string) bool {
 }
 
 func parseRequestLine(requestLine []byte) (*RequestLine, int, error) {
-	fmt.Printf("running parseRequestLine: %s\n", string(requestLine))
 	endIndex := bytes.Index(requestLine, []byte(NEW_LINE_INDECTAR))
 	if endIndex == -1 {
 		return nil, 0, NOT_FOUND_NEW_LINE_INDECTAR
@@ -78,9 +96,10 @@ func (r *Request) parse(data []byte) (int, error) {
 	read := 0
 outer:
 	for {
+		currentData := data[read:]
 		switch r.Status {
 		case initialState:
-			requestLine, parseLen, err := parseRequestLine(data)
+			requestLine, parseLen, err := parseRequestLine(currentData)
 			if err != nil {
 				if err == NOT_FOUND_NEW_LINE_INDECTAR {
 					break outer
@@ -92,14 +111,41 @@ outer:
 			}
 			read += parseLen
 			r.RequestLine = *requestLine
-			r.Status = doneState
+			r.Status = headerState
+		case headerState:
+			n, done, err := r.Headers.Parse(currentData)
+			if err != nil {
+				return 0, err
+			}
 
+			if n == 0 {
+				break outer
+			}
+
+			read += n
+			if done {
+				r.Status = bodyState
+			}
+		case bodyState:
+			contentLength := getInt(r.Headers, "content-length", 0)
+			if contentLength == 0 {
+				r.Status = doneState
+				break
+			}
+
+			lengToRead := min(contentLength-len(r.Body), len(currentData))
+			r.Body += string(currentData[:lengToRead])
+			read += lengToRead
+
+			if len(r.Body) == contentLength {
+				r.Status = doneState
+			}
 		case doneState:
 			break outer
 		case errorState:
-			return 0, fmt.Errorf("reach error state")
+			return 0, fmt.Errorf("")
 		default:
-			return read, fmt.Errorf("unknown parser state")
+			panic("reach deafult palace")
 		}
 	}
 
@@ -108,7 +154,9 @@ outer:
 
 func newRequest() *Request {
 	return &Request{
-		Status: initialState,
+		Status:  initialState,
+		Headers: headers.NewHeaders(),
+		Body:    "",
 	}
 }
 
