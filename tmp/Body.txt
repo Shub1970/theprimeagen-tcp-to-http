@@ -1,0 +1,15 @@
+connection is setup
+header get access:content-length,output val :39
+Request line:
+Method: POST
+Target: /coffee
+Version: 1.1
+
+Headers:
+user-agent : curl/8.5.0
+accept : */*
+content-type : application/json
+content-length : 39
+host : localhost:42069
+Body: 
+{"type": "dark mode", "size": "medium"}

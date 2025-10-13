@@ -140,6 +140,7 @@ outer:
 			if len(r.Body) == contentLength {
 				r.Status = doneState
 			}
+			break outer
 		case doneState:
 			break outer
 		case errorState:
@@ -160,6 +161,7 @@ func newRequest() *Request {
 	}
 }
 
+// this id the data i care for most
 func RequestFromReader(reader io.Reader) (*Request, error) {
 	// craete new request
 	req := newRequest()

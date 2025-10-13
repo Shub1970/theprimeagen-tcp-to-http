@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-// type Headers map[string]string
-
 var REGISTER_NEURSE = "\r\n"
 var MAILFORMATE_IN_FIELD_LINE = fmt.Errorf("malformate in field line")
 

@@ -24,6 +24,9 @@ func handleConnection(conn io.ReadCloser) {
 	for key, value := range request.Headers.Headers {
 		fmt.Printf("%s : %s\n", key, value)
 	}
+
+	fmt.Print("Body: \n")
+	fmt.Printf("%s\n", request.Body)
 }
 
 func main() {
