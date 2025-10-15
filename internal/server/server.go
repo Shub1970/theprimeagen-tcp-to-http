@@ -1,6 +1,7 @@
 package server
 
 import (
+	"TCPtoHTTP/internal/response"
 	"fmt"
 	"io"
 	"net"
@@ -10,14 +11,10 @@ type Server struct {
 	closed bool
 }
 
-func runConnection(s *Server, conn io.ReadWriteCloser) {
-	body := []byte("Hello World!\n")
-	response := fmt.Sprintf("HTTP/1.1 200 OK\r\n"+"Content-Type: text/plain\r\n"+"\r\n%s",
-		len(body), body,
-	)
+func runConnection(_s *Server, conn io.ReadWriteCloser) {
+	headersData := response.GetDefaultHeaders(0)
+	conn.Write([]byte(headersData))
 
-	conn.Write([]byte(response))
-	conn.Close()
 }
 
 func runServer(s *Server, listener net.Listener) {
