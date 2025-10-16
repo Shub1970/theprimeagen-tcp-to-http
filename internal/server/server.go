@@ -13,8 +13,8 @@ type Server struct {
 
 func runConnection(_s *Server, conn io.ReadWriteCloser) {
 	headersData := response.GetDefaultHeaders(0)
-	conn.Write([]byte(headersData))
-
+	response.WriteStatusLine(conn, 200)
+	response.WriteHeaders(conn, headersData)
 }
 
 func runServer(s *Server, listener net.Listener) {

@@ -18,11 +18,12 @@ func WriteStatusLine(w io.Writer, statusCode StatusCode) error {
 	statusOut := []byte{}
 	switch statusCode {
 	case statusOk:
-		statusOut = []byte("HTTP/1.1 200 OK")
+		statusOut = []byte("HTTP/1.1 200 OK\r\n")
 	case statusBad:
-		statusOut = []byte("HTTP/1.1 400 Bad Request")
+		statusOut = []byte("HTTP/1.1 400 Bad Request\r\n")
+
 	case statusServerError:
-		statusOut = []byte("HTTP/1.1 500 Internal Server Error")
+		statusOut = []byte("HTTP/1.1 500 Internal Server Error\r\n")
 	default:
 		return fmt.Errorf("reach unexpected status")
 	}
@@ -34,7 +35,7 @@ func WriteStatusLine(w io.Writer, statusCode StatusCode) error {
 func GetDefaultHeaders(contentLen int) *headers.Headers {
 	defaultsHeader := headers.NewHeaders()
 
-	defaultsHeader.Set("Content-Length", fmt.Sprint("%d", contentLen))
+	defaultsHeader.Set("Content-Length", fmt.Sprintf("%d", contentLen))
 	defaultsHeader.Set("Connection", "close")
 	defaultsHeader.Set("Content-Type", "text/plain")
 	return defaultsHeader
