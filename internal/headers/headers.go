@@ -28,6 +28,14 @@ func (h *Headers) Set(key string, val string) {
 		h.Headers[lowKey] = val
 	}
 }
+func (h *Headers) Replace(key string, val string) {
+	lowKey := strings.ToLower(key)
+	if _, ok := h.Headers[lowKey]; ok {
+		h.Headers[lowKey] = fmt.Sprintf("%s", val)
+	} else {
+		fmt.Printf("key is not present in map: %s\n", lowKey)
+	}
+}
 
 func NewHeaders() *Headers {
 	return &Headers{

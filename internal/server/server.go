@@ -1,29 +1,36 @@
 package server
 
 import (
+	"TCPtoHTTP/internal/request"
 	"TCPtoHTTP/internal/response"
 	"fmt"
 	"io"
 	"net"
 )
 
-type Server struct {
-	closed bool
-}
-
-
 type HandlerError struct {
 	StatusCode response.StatusCode
-	Message  string
+	Message    string
 }
 
-type Handler func(w io.Writer, req *request.Request) *HandlerError{
+type Handler func(w *response.Writer, req *request.Request)
+
+type Server struct {
+	closed  bool
+	handler Handler
 }
 
-func runConnection(_s *Server, conn io.ReadWriteCloser) {
-	headersData := response.GetDefaultHeaders(0)
-	response.WriteStatusLine(conn, response.StatusOk)
-	response.WriteHeaders(conn, headersData)
+func runConnection(s *Server, conn io.ReadWriteCloser) {
+	defer conn.Close()
+	responseWriter := response.NewWriter(conn)
+	request, err := request.RequestFromReader(conn)
+	if err != nil {
+		responseWriter.WriteStatusLine(response.StatusBadRequest)
+		responseWriter.WriteHeaders(*response.GetDefaultHeaders(0))
+		return
+	}
+
+	s.handler(responseWriter, request)
 
 }
 
@@ -41,14 +48,15 @@ func runServer(s *Server, listener net.Listener) {
 	}
 }
 
-func Serve(port uint16,handler Handler) (*Server, error) {
+func Serve(port uint16, handler Handler) (*Server, error) {
 	listner, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return nil, err
 	}
-	
+
 	server := &Server{
-		closed: false
+		closed:  false,
+		handler: handler,
 	}
 
 	go runServer(server, listner)
